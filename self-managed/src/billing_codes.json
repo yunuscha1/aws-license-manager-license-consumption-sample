@@ -1,0 +1,25 @@
+{
+  "license_included": [
+    "RunInstances",
+    "RunInstances:0010",
+    "RunInstances:1010",
+    "RunInstances:1014",
+    "RunInstances:1110",
+    "RunInstances:0014",
+    "RunInstances:0210",
+    "RunInstances:0110",
+    "RunInstances:0100",
+    "RunInstances:0004",
+    "RunInstances:0200",
+    "RunInstances:000g",
+    "RunInstances:0g00",
+    "RunInstances:0002",
+    "RunInstances:0102",
+    "RunInstances:0006",
+    "RunInstances:0202"
+  ],
+  "byol": [
+    "RunInstances:00g0",
+    "RunInstances:0800"
+  ]
+}

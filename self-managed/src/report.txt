@@ -1,0 +1,6 @@
+An error occurred (AccessDenied) when calling the AssumeRole operation: User: arn:aws:sts::360529614548:assumed-role/Admin/yunuscha-Isengard is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::360529614548:role/ManagerAccountEC2DescribeInstances
+Could not assume ManagerAccountEC2DescribeInstances role in the following account: 360529614548
+Check for typos in role name or permissions in the account
+An error occurred (AccessDenied) when calling the AssumeRole operation: User: arn:aws:sts::360529614548:assumed-role/Admin/yunuscha-Isengard is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::831163633393:role/ManagerAccountEC2DescribeInstances
+Could not assume ManagerAccountEC2DescribeInstances role in the following account: 831163633393
+Check for typos in role name or permissions in the account

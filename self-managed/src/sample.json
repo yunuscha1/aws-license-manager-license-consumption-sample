@@ -1,0 +1,40 @@
+{
+    "license_included": [
+        {
+            "InstanceId": "i-0ed623494513a84d7",
+            "UsageOperation": "RunInstances"
+        },
+        {
+            "InstanceId": "i-032604bed9e224952",
+            "UsageOperation": "RunInstances:0g00"
+        },
+        {
+            "InstanceId": "i-06683435094b0fe0b",
+            "UsageOperation": "RunInstances:000g"
+        },
+        {
+            "InstanceId": "i-05a734e5c0b210cb5",
+            "UsageOperation": "RunInstances",
+            "ProductCodes": [
+                {
+                    "ProductCodeId": "7j8n8jy77bvzobtsw6q5i9a8o",
+                    "ProductCodeType": "marketplace"
+                }
+            ]
+        }
+    ],
+    "byol_with_billing_code": [],
+    "marketplace": [
+        {
+            "InstanceId": "i-05a734e5c0b210cb5",
+            "UsageOperation": "RunInstances",
+            "ProductCodes": [
+                {
+                    "ProductCodeId": "7j8n8jy77bvzobtsw6q5i9a8o",
+                    "ProductCodeType": "marketplace"
+                }
+            ]
+        }
+    ],
+    "byol_wo_billing_code": []
+}
