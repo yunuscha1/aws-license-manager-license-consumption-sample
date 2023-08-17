@@ -1,0 +1,7 @@
+{
+  "default_region": "us-east-1",
+  "source_regions": [],
+  "org_wide_role_name": "AdminOrgWideInstancesAggregator",
+  "stack_set_name": "OrgWideInstanceAggregatorStackSet",
+  "automatic_member_role_creation": false
+}
