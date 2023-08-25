@@ -12,10 +12,10 @@ def get_stack_set_document(account_id):
         "AWSTemplateFormatVersion": "2010-09-09",
         "Description": "Stack set template for Org Wide instance data aggregator",
         "Resources": {
-            inputs["org_wide_instance_role_name"]: {
+            inputs["org_wide_role_name"]: {
                 "Type": "AWS::IAM::Role",
                 "Properties": {
-                    "RoleName": inputs["org_wide_instance_role_name"],
+                    "RoleName": inputs["org_wide_role_name"],
                     "AssumeRolePolicyDocument": {
                         "Version": "2012-10-17",
                         "Statement": [{
@@ -48,34 +48,35 @@ def create_stack_set(account_id):
     cf_client = get_cf_client(default_region)
     orgs_client = get_org_client()
     caller = check_if_delegated_admin()
-    print("Creating Stack Set in account: " + account_id)
-    cf_response = cf_client.create_stack_set(StackSetName=inputs["stack_set_name"],
-                                             TemplateBody=get_stack_set_document(account_id),
-                                             PermissionModel="SERVICE_MANAGED",
-                                             AutoDeployment={
-                                                 "Enabled": True,
-                                                 "RetainStacksOnAccountRemoval": False
-                                             },
-                                             CallAs=caller,
-                                             Capabilities=["CAPABILITY_NAMED_IAM"])
-
+    print("Creating Stack Set in management account")
+    try:
+        cf_response = cf_client.create_stack_set(StackSetName=inputs["stack_set_name"],
+                                                 TemplateBody=get_stack_set_document(account_id),
+                                                 PermissionModel="SERVICE_MANAGED",
+                                                 AutoDeployment={
+                                                     "Enabled": True,
+                                                     "RetainStacksOnAccountRemoval": False
+                                                 },
+                                                 CallAs=caller,
+                                                 Capabilities=["CAPABILITY_NAMED_IAM"])
+    except Exception as Argument:
+        if Argument.response['Error']['Code'] == 'NameAlreadyExistsException':
+            print(inputs["stack_set_name"] + " already present in management account")
     orgs_response = orgs_client.list_roots()
-
     print("Deploying stack instances in following OU Ids: ")
     for root in orgs_response["Roots"]:
         print(root["Id"])
-    cf_response = cf_client.create_stack_instances(StackSetName=cf_response["StackSetId"],
+    cf_response = cf_client.create_stack_instances(StackSetName=inputs["stack_set_name"],
                                      DeploymentTargets={
-                                         "Accounts": ["438133634613", "360529614548"],  # TODO: Remove this line after done testing
+                                         "Accounts": [],
                                          "OrganizationalUnitIds": [root["Id"] for root in orgs_response["Roots"]],
-                                         "AccountFilterType": "INTERSECTION"
-                                         # TODO: Remove this line after done testing
+                                         "AccountFilterType": "NONE"
                                      },
                                      CallAs=caller,
                                      Regions=[inputs["default_region"]]
                                      )
 
-    if not polling(caller, cf_client, cf_response["OperationId"]):
+    if not polling(caller, cf_client, cf_response["OperationId"], inputs['stack_set_name']):
         print("Failure in stack instance creation")
         exit()
 
@@ -88,7 +89,10 @@ def main(command_line=None):
 
     manager_account_id = get_current_account_id()
 
-    enable_stack_set_service()
+    caller = check_if_delegated_admin()
+
+    if caller == 'SELF':
+        enable_stack_set_service()
 
     create_stack_set(manager_account_id)
 

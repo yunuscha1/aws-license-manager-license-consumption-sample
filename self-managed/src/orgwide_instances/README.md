@@ -5,7 +5,7 @@ AWS Organization.
 ## Requirements
 Before using the workflow, certain permissions need to be provisioned to both 
 the management/delegated admin account and member accounts.
-#### Management/Delegated Admin Permissions
+#### Management/Delegated Admin Permissions 
 The role assumed in the management/delegated admin account must have permissions to call 
 the following APIs:
 - Cloudformation - CreateStackSet, CreateStackInstance, DetectStackSetDrift, DescribeStackSetOperation

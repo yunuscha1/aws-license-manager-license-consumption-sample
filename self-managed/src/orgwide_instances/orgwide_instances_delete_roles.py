@@ -13,12 +13,10 @@ def delete_stack_set(account_id):
     caller = check_if_delegated_admin()
     cf_response = cf_client.delete_stack_instances(StackSetName=inputs["stack_set_name"],
                                                    DeploymentTargets={
-                                                       "Accounts": ["438133634613", "360529614548"],
-                                                       # TODO: Remove this line after done testing
+                                                       "Accounts": [],
                                                        "OrganizationalUnitIds": [root["Id"] for root in
                                                                                  orgs_response["Roots"]],
-                                                       "AccountFilterType": "INTERSECTION"
-                                                       # TODO: Remove this line after done testing
+                                                       "AccountFilterType": "NONE"
                                                    },
                                                    Regions=[inputs["default_region"]],
                                                    RetainStacks=False,
@@ -29,7 +27,7 @@ def delete_stack_set(account_id):
         print("Error in deleting stack instances")
         exit()
 
-    print("Deleting Stack Set in account: " + account_id)
+    print("Deleting Stack Set in management account")
     cf_client.delete_stack_set(StackSetName=inputs["stack_set_name"], CallAs=caller)
 
 

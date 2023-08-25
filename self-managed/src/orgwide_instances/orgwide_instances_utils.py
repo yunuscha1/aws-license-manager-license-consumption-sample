@@ -32,7 +32,8 @@ def check_if_delegated_admin():
     current_account = get_current_account_id()
 
     org_client = get_org_client()
-    org_response = org_client.list_delegated_administrators()
+    org_response = org_client.list_delegated_administrators(
+        ServicePrincipal='member.org.stacksets.cloudformation.amazonaws.com')
 
     if any([current_account == da["Id"] for da in org_response["DelegatedAdministrators"]]):
         return 'DELEGATED_ADMIN'

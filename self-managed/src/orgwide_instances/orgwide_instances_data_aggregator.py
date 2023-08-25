@@ -3,13 +3,15 @@ from orgwide_instances_utils import *
 
 summary = dict()
 error_messages = dict()
+misconfigured_accounts = set()
 
 
 def check_stack_set_status():
     cf_client = get_cf_client(inputs['default_region'])
-    response = cf_client.detect_stack_set_drift(StackSetName=inputs["stack_set_name"])
-    operation_id = response["OperationId"]
     caller = check_if_delegated_admin()
+    response = cf_client.detect_stack_set_drift(StackSetName=inputs["stack_set_name"],
+                                                CallAs=caller)
+    operation_id = response["OperationId"]
     response = cf_client.describe_stack_set_operation(StackSetName=inputs["stack_set_name"],
                                                       OperationId=operation_id,
                                                       CallAs=caller)
@@ -25,6 +27,7 @@ def check_stack_set_status():
             response["StackSetOperation"]["StackSetDriftDetectionDetails"]['TotalStackInstancesCount']) - int(
             response["StackSetOperation"]["StackSetDriftDetectionDetails"]['InSyncStackInstancesCount'])
         print("Necessary roles and permissions are not present in " + str(misconfigured_stacks) + " member accounts.")
+        print("Check cloud formation stack sets to see which accounts have altered stack instances")
         exit()
     return
 
@@ -87,6 +90,8 @@ def get_regions(account, sts_response):
     except Exception as Argument:
         summary[account]["ec2_errors"] += 1
         error_messages[account]["ec2_error_messages"].append("us-east-1: " + str(Argument))
+        if Argument.response['Error']['Code'] == 'UnauthorizedOperation':
+            misconfigured_accounts.add(account)
         return []
     return [region["RegionName"] for region in response["Regions"]]
 
@@ -132,6 +137,8 @@ def fetch_ec2_instances(account, region, sts_response):
     except Exception as Argument:
         summary[account][EC2_ERRORS] += 1
         error_messages[account][EC2_ERROR_MESSAGES].append(region + ": " + str(Argument))
+        if Argument.response['Error']['Code'] == 'UnauthorizedOperation':
+            misconfigured_accounts.add(account)
         return []
     return ec2_instances
 
@@ -173,7 +180,6 @@ def categorize_ec2_instances(all_accounts):
                     categorized_ec2[LICENSE_INCLUDED].append(format_data(account, ec2_instance, LICENSE_INCLUDED,
                                                                          region))
                     summary[account][LICENSE_INCLUDED] += 1
-                    byol.append(ec2_instance)  # TODO: Remove this after testing
                 else:
                     byol.append(ec2_instance)
                     summary[account][BYOL] += 1
@@ -202,6 +208,8 @@ def get_ec2_instance_information(account, ec2_instances, region, sts_response):
     except Exception as Argument:
         summary[account][SSM_ERRORS] += 1
         error_messages[account][SSM_ERROR_MESSAGES].append(region + ": " + str(Argument))
+        if Argument.response['Error']['Code'] == 'NotAuthorized':
+            misconfigured_accounts.add(account)
         return []
 
     # Filter SSM Describe Instance Information
@@ -267,8 +275,17 @@ def create_summary(all_accounts):
 
 def write_report():
     with open("report.txt", "w") as report_fp:
+        if len(misconfigured_accounts) != 0:
+            report_fp.write("The following accounts are not provisioned the correct permissions: \n")
+            for account in misconfigured_accounts:
+                report_fp.write(account + '\n')
+            report_fp.write('\n')
+        if summary['ALL'][TOTAL_ERRORS] == 0:
+            return
         report_fp.write("Errors are separated by AccountId and have the region of error origin listed \n \n")
         for account, categorized_messages in error_messages.items():
+            if summary[account][TOTAL_ERRORS] == 0:
+                continue
             report_fp.write(account + ":\n")
             for error_type, messages in categorized_messages.items():
                 report_fp.write(error_type + "\n\n")
