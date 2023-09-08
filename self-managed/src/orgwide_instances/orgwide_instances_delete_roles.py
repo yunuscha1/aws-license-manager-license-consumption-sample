@@ -13,10 +13,8 @@ def delete_stack_set(account_id):
     caller = check_if_delegated_admin()
     cf_response = cf_client.delete_stack_instances(StackSetName=inputs["stack_set_name"],
                                                    DeploymentTargets={
-                                                       "Accounts": [],
                                                        "OrganizationalUnitIds": [root["Id"] for root in
-                                                                                 orgs_response["Roots"]],
-                                                       "AccountFilterType": "NONE"
+                                                                                 orgs_response["Roots"]]
                                                    },
                                                    Regions=[inputs["default_region"]],
                                                    RetainStacks=False,

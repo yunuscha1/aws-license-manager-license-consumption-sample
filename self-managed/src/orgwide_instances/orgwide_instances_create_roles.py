@@ -45,7 +45,7 @@ def get_stack_set_document(account_id):
 
 
 def create_stack_set(account_id):
-    cf_client = get_cf_client(default_region)
+    cf_client = get_cf_client(inputs['default_region'])
     orgs_client = get_org_client()
     caller = check_if_delegated_admin()
     print("Creating Stack Set in management account")
@@ -68,9 +68,7 @@ def create_stack_set(account_id):
         print(root["Id"])
     cf_response = cf_client.create_stack_instances(StackSetName=inputs["stack_set_name"],
                                      DeploymentTargets={
-                                         "Accounts": [],
-                                         "OrganizationalUnitIds": [root["Id"] for root in orgs_response["Roots"]],
-                                         "AccountFilterType": "NONE"
+                                         "OrganizationalUnitIds": [root["Id"] for root in orgs_response["Roots"]]
                                      },
                                      CallAs=caller,
                                      Regions=[inputs["default_region"]]

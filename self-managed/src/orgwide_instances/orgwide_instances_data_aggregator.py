@@ -34,18 +34,31 @@ def check_stack_set_status():
 
 def list_all_accounts():
     org_client = get_org_client()
-    response = org_client.list_accounts()
-    all_accounts = []
+    if len(inputs['accounts']) == 0 and len(inputs['ou_ids']) == 0:
+        response = org_client.list_accounts()
+        all_accounts = []
 
-    for account in response["Accounts"]:
-        all_accounts.append(account["Id"])
-
-    while "NextToken" in response:
-        response = org_client.list_accounts(NextToken=response["NextToken"])
         for account in response["Accounts"]:
             all_accounts.append(account["Id"])
 
-    return all_accounts
+        while "NextToken" in response:
+            response = org_client.list_accounts(NextToken=response["NextToken"])
+            for account in response["Accounts"]:
+                all_accounts.append(account["Id"])
+
+        return all_accounts
+    all_accounts = inputs['accounts']
+    for ou_id in inputs['ou_ids']:
+        response = org_client.list_accounts_for_parent(ParentId=ou_id)
+        for account in response["Accounts"]:
+            all_accounts.append(account["Id"])
+
+        while "NextToken" in response:
+            response = org_client.list_accounts_for_parent(ParentId=ou_id, NextToken=response["NextToken"])
+            for account in response["Accounts"]:
+                all_accounts.append(account["Id"])
+
+    return list(set(all_accounts))
 
 
 def get_billing_codes():
@@ -74,10 +87,6 @@ def sts_assume_role(account):
         error_messages[account][STS_ERROR_MESSAGES].append(str(Argument))
         return None
     return sts_response
-
-
-def check_role_permissions(sts_response):
-    return
 
 
 def get_regions(account, sts_response):
@@ -300,7 +309,7 @@ def main(command_line=None):
     global inputs
     inputs = get_inputs()
 
-    if inputs["automatic_member_role_creation"]:
+    if inputs["automatic_member_role_creation"] and inputs["check_stack_set_status"]:
         check_stack_set_status()
 
     all_accounts = list_all_accounts()

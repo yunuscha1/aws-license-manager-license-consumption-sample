@@ -71,14 +71,3 @@ def get_cf_client(region):
 
 def get_sts_client():
     return boto3.client(service_name='sts')
-
-
-# Inputs
-source_regions = []
-default_region = "us-east-1"
-stack_set_name = "OrgWideInstanceAggregatorStackSet"  # If using stackset creation
-org_wide_instance_role_name = "AdminOrgWideInstancesAggregator"  # insert chosen role name; this role should be located
-# managed accounts and have "ec2:describeInstances" and "ssm:describeInstanceInformation" permission. Additionally,
-# the manager account should have permissions to assume this role. More information can be found here
-# https://aws.amazon.com/blogs/security/how-to-use-trust-policies-with-iam-roles/
-

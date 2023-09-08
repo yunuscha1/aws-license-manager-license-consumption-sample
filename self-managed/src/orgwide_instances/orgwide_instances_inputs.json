@@ -1,7 +1,10 @@
 {
-  "source_regions": ["us-east-1"],
+  "source_regions": [],
+  "accounts": [],
+  "ou_ids": [],
   "org_wide_role_name": "AdminOrgWideInstancesAggregator",
-  "default_region": "us-east-1",
+  "default_region": "us-west-2",
   "stack_set_name": "OrgWideInstanceAggregatorStackSet",
-  "automatic_member_role_creation": false
+  "automatic_member_role_creation": true,
+  "check_stack_set_status": true
 }
