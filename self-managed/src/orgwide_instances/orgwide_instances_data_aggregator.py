@@ -101,11 +101,11 @@ def get_regions(account, sts_response):
         ec2_client = get_ec2_client(sts_response["Credentials"]["AccessKeyId"],
                                     sts_response["Credentials"]["SecretAccessKey"],
                                     sts_response["Credentials"]["SessionToken"],
-                                    "us-east-1")
+                                    inputs["default_region"])
         response = ec2_client.describe_regions()
     except Exception as Argument:
         summary[account]["ec2_errors"] += 1
-        error_messages[account]["ec2_error_messages"].append("us-east-1: " + str(Argument))
+        error_messages[account]["ec2_error_messages"].append(inputs["default_region"] + ": " + str(Argument))
         if Argument.response['Error']['Code'] == 'UnauthorizedOperation':
             misconfigured_accounts.add(account)
         return []
