@@ -21,15 +21,22 @@ def check_stack_set_status():
         response = cf_client.describe_stack_set_operation(StackSetName=inputs["stack_set_name"],
                                                           OperationId=operation_id,
                                                           CallAs=caller)
-    if response["StackSetOperation"]["StackSetDriftDetectionDetails"]['DriftStatus'] != 'IN_SYNC':
-        print(response["StackSetOperation"]["StackSetDriftDetectionDetails"]['DriftStatus'])
-        misconfigured_stacks = int(
-            response["StackSetOperation"]["StackSetDriftDetectionDetails"]['TotalStackInstancesCount']) - int(
-            response["StackSetOperation"]["StackSetDriftDetectionDetails"]['InSyncStackInstancesCount'])
-        print("Necessary roles and permissions are not present in " + str(misconfigured_stacks) + " member accounts.")
-        print("Check cloud formation stack sets to see which accounts have altered stack instances")
-        exit()
-    return
+    misconfigured_stacks = 0
+    for account in list_all_accounts():
+        dsi_response = cf_client.describe_stack_instance(
+            StackSetName=inputs["stack_set_name"],
+            StackInstanceAccount=account,
+            StackInstanceRegion=inputs["default_region"],
+            CallAs= caller
+        )
+        if dsi_response["StackInstance"]["DriftStatus"] != "IN_SYNC":
+            misconfigured_stacks += 1
+            summary[account][STS_ERRORS] += 1
+            error_messages[account][STS_ERROR_MESSAGES].append("Potentially incorrect stack instance for "
+                                                               "roles and permissions")
+
+    if misconfigured_stacks > 0:
+        print("WARNING - Number of misconfigured stacks: " + str(misconfigured_stacks))
 
 
 def list_all_accounts():
@@ -166,8 +173,6 @@ def categorize_ec2_instances(all_accounts):
     all_billing_codes = get_billing_codes()
     all_product_codes, product_codes = get_product_codes()
     for account in all_accounts:
-        summary[account] = initialize_summary()
-        error_messages[account] = initialize_error_message()
         sts_response = sts_assume_role(account)
         if sts_response is None:
             continue
@@ -309,11 +314,15 @@ def main(command_line=None):
     global inputs
     inputs = get_inputs()
 
-    if inputs["automatic_member_role_creation"] and inputs["check_stack_set_status"]:
-        check_stack_set_status()
-
     all_accounts = list_all_accounts()
     print("Attempting to gather data from " + str(len(all_accounts)) + " accounts")
+
+    for account in all_accounts:
+        summary[account] = initialize_summary()
+        error_messages[account] = initialize_error_message()
+
+    if inputs["automatic_member_role_creation"] and inputs["check_stack_set_status"]:
+        check_stack_set_status()
 
     categorized_ec2_instances = categorize_ec2_instances(all_accounts)
 
