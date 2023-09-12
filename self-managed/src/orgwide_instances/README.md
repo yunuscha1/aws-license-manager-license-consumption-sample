@@ -41,8 +41,7 @@ deployment of roles and policies into member accounts
 if any permissions in member accounts have changed. Setting to false will make the 
 execution of the script faster.
 
-Note: If both "accounts" and "ou_ids" are specified, all accounts in the union of the two
-sets will have their data collected
+Note: Only one of either "accounts" or "ou_ids" may be used at a time.
 ##### Default inputs
 ```
 {

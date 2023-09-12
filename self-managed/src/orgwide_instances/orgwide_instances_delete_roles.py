@@ -3,27 +3,23 @@ from orgwide_instances_utils import *
 
 def delete_stack_set(account_id):
     cf_client = get_cf_client(inputs["default_region"])
-    orgs_client = get_org_client()
-    orgs_response = orgs_client.list_roots()
-
-    print("Deleting stack instances in following OU Ids:")
-    for root in orgs_response["Roots"]:
-        print(root["Id"])
 
     caller = check_if_delegated_admin()
-    cf_response = cf_client.delete_stack_instances(StackSetName=inputs["stack_set_name"],
-                                                   DeploymentTargets={
-                                                       "OrganizationalUnitIds": [root["Id"] for root in
-                                                                                 orgs_response["Roots"]]
-                                                   },
-                                                   Regions=[inputs["default_region"]],
-                                                   RetainStacks=False,
-                                                   CallAs=caller
-                                                   )
 
-    if not polling(caller, cf_client, cf_response["OperationId"], inputs["stack_set_name"]):
-        print("Error in deleting stack instances")
-        exit()
+    try:
+        cf_response = cf_client.delete_stack_instances(StackSetName=inputs["stack_set_name"],
+                                                       DeploymentTargets=get_deployment_targets(inputs["ou_ids"],
+                                                                              inputs["accounts"],
+                                                                              "deletion"),
+                                                       Regions=[inputs["default_region"]],
+                                                       RetainStacks=False,
+                                                       CallAs=caller
+                                                       )
+        if not polling(caller, cf_client, cf_response["OperationId"], inputs["stack_set_name"]):
+            print("Error in deleting stack instances")
+            exit()
+    except Exception as Argument:
+        print(str(Argument))
 
     print("Deleting Stack Set in management account")
     cf_client.delete_stack_set(StackSetName=inputs["stack_set_name"], CallAs=caller)

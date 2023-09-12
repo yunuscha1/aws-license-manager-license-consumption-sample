@@ -23,20 +23,23 @@ def check_stack_set_status():
                                                           CallAs=caller)
     misconfigured_stacks = 0
     for account in list_all_accounts():
-        dsi_response = cf_client.describe_stack_instance(
-            StackSetName=inputs["stack_set_name"],
-            StackInstanceAccount=account,
-            StackInstanceRegion=inputs["default_region"],
-            CallAs= caller
-        )
-        if dsi_response["StackInstance"]["DriftStatus"] != "IN_SYNC":
+        try:
+            dsi_response = cf_client.describe_stack_instance(
+                StackSetName=inputs["stack_set_name"],
+                StackInstanceAccount=account,
+                StackInstanceRegion=inputs["default_region"],
+                CallAs= caller
+            )
+            if dsi_response["StackInstance"]["DriftStatus"] != "IN_SYNC":
+                misconfigured_stacks += 1
+                summary[account][STS_ERRORS] += 1
+                error_messages[account][STS_ERROR_MESSAGES].append("Potentially incorrect stack instance for "
+                                                                   "roles and permissions")
+        except Exception as Argument:
             misconfigured_stacks += 1
-            summary[account][STS_ERRORS] += 1
-            error_messages[account][STS_ERROR_MESSAGES].append("Potentially incorrect stack instance for "
-                                                               "roles and permissions")
 
     if misconfigured_stacks > 0:
-        print("WARNING - Number of misconfigured stacks: " + str(misconfigured_stacks))
+        print("WARNING - Number of potentially misconfigured accounts: " + str(misconfigured_stacks))
 
 
 def list_all_accounts():
@@ -322,6 +325,7 @@ def main(command_line=None):
         error_messages[account] = initialize_error_message()
 
     if inputs["automatic_member_role_creation"] and inputs["check_stack_set_status"]:
+        print("Checking stack set status")
         check_stack_set_status()
 
     categorized_ec2_instances = categorize_ec2_instances(all_accounts)

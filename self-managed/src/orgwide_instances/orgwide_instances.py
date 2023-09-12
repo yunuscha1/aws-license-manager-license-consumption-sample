@@ -20,6 +20,10 @@ def main(command_line=None):
 
     inputs = get_inputs()
 
+    if len(inputs["accounts"]) > 0 and len(inputs["ou_ids"]) > 0:
+        print("Both accounts and ou_ids cannot be used together")
+        exit()
+
     if check_if_delegated_admin() == 'SELF':
         print("Logged in through management account")
     else:

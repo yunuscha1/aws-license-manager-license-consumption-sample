@@ -55,6 +55,31 @@ def polling(caller, cf_client, operation_id, stack_set_name):
     return True
 
 
+def get_deployment_targets(input_ou_ids, input_accounts, operation):
+    orgs_client = get_org_client()
+    orgs_response = orgs_client.list_roots()
+    ou_ids = [root["Id"] for root in orgs_response["Roots"]]
+    if len(input_accounts) == 0 and len(input_ou_ids) == 0:
+        print("Deploying stack instance " + operation + " in following OU Ids: ")
+        for root in orgs_response["Roots"]:
+            print(root["Id"])
+        return {"OrganizationalUnitIds": ou_ids}
+    deployment_targets = dict()
+    if len(input_accounts) > 0:
+        deployment_targets["Accounts"] = input_accounts
+        deployment_targets["AccountFilterType"] = "INTERSECTION"
+        deployment_targets["OrganizationalUnitIds"] = ou_ids
+        print("Deploying stack instances " + operation + " in following accounts: ")
+        for account in input_accounts:
+            print(account)
+        return deployment_targets
+    if len(input_ou_ids) > 0:
+        deployment_targets["OrganizationalUnitIds"] = input_ou_ids
+        print("Deploying stack instance " + operation + " in following OU ids: ")
+        for ou_id in input_ou_ids:
+            print(ou_id)
+    return deployment_targets
+
 def get_inputs():
     with open("orgwide_instances_inputs.json") as fp:
         return json.load(fp)
