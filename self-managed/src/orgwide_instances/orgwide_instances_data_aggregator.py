@@ -119,6 +119,7 @@ def format_data_helper(product_code_id, product_codes):
     for product_code_name, product_code_ids in product_codes.items():
         if product_code_id in product_code_ids:
             return product_code_name
+    return "UNKNOWN"
 
 
 def format_data(account_id, ec2_instance, instance_type, region, product_codes=None):
@@ -188,8 +189,7 @@ def categorize_ec2_instances(all_accounts):
             byol = []
             ec2_instances = fetch_ec2_instances(account, region, sts_response)
             for ec2_instance in ec2_instances:
-                if any([product_code["ProductCodeId"] in all_product_codes for product_code in
-                        ec2_instance["ProductCodes"]]):
+                if len(ec2_instance["ProductCodes"]) > 0:
                     categorized_ec2[MARKETPLACE].append(format_data(account, ec2_instance, MARKETPLACE, region,
                                                                     product_codes))
                     summary[account][MARKETPLACE] += 1
