@@ -16,7 +16,7 @@ EC2_ERROR_MESSAGES = "ec2_error_messages"
 SSM_ERROR_MESSAGES = "ssm_error_messages"
 
 categorized_fields = {
-    LICENSE_INCLUDED: {"AccountId", "PlatformDetails", "InstanceId", "Region"},
+    LICENSE_INCLUDED: {"AccountId", "PlatformDetails", "InstanceId", "Region", "LicenseIncludedType"},
     MARKETPLACE: {"AccountId", "PlatformDetails", "InstanceId", "ProductCodes", "Region"},
     BYOL: {"AccountId", "InstanceId", "PlatformDetails", "PlatformName", "PlatformType", "PlatformVersion", "Region"}
 }

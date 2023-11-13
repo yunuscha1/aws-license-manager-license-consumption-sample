@@ -1,0 +1,21 @@
+{
+  "RunInstances": "Linux/Unix",
+  "RunInstances:0010": "Red Hat Enterprise Linux",
+  "RunInstances:1010": "Red Hat Enterprise Linux with HA",
+  "RunInstances:1014": "Red Hat Enterprise Linux with SQL Server Standard and HA",
+  "RunInstances:1110": "Red Hat Enterprise Linux with SQL Server Enterprise and HA",
+  "RunInstances:0014": "Red Hat Enterprise Linux with SQL Server Standard",
+  "RunInstances:0210": "Red Hat Enterprise Linux with SQL Server Web",
+  "RunInstances:0110": "Red Hat Enterprise Linux with SQL Server Enterprise",
+  "RunInstances:0100": "SQL Server Enterprise",
+  "RunInstances:0004": "SQL Server Standard",
+  "RunInstances:0200": "SQL Server Web",
+  "RunInstances:000g": "SUSE Linux",
+  "RunInstances:0g00": "Ubuntu Pro",
+  "RunInstances:0002": "Windows",
+  "RunInstances:0102": "Windows with SQL Server Enterprise",
+  "RunInstances:0006": "Windows with SQL Server Standard",
+  "RunInstances:0202": "Windows with SQL Server Web",
+  "RunInstances:00g0": "Red Hat BYOL Linux",
+  "RunInstances:0800": "Windows BYOL"
+}

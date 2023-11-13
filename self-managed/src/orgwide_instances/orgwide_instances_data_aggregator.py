@@ -71,6 +71,11 @@ def list_all_accounts():
     return list(set(all_accounts))
 
 
+def get_license_included_map():
+    with open("license_included_codes.json") as fp:
+        return json.load(fp)
+
+
 def get_billing_codes():
     # Loading in billing codes
     with open("billing_codes.json") as fp:
@@ -122,7 +127,7 @@ def format_data_helper(product_code_id, product_codes):
     return "UNKNOWN"
 
 
-def format_data(account_id, ec2_instance, instance_type, region, product_codes=None):
+def format_data(account_id, ec2_instance, instance_type, region, product_codes=None, license_included_map=None):
     desired_fields = categorized_fields[instance_type].copy()
     for key in desired_fields.copy():
         if ec2_instance.get(key) is None or ec2_instance.get(key) == []:
@@ -130,6 +135,8 @@ def format_data(account_id, ec2_instance, instance_type, region, product_codes=N
     if instance_type == MARKETPLACE:
         ec2_instance["ProductCodes"] = ":".join([format_data_helper(product_code["ProductCodeId"], product_codes)
                                                  for product_code in ec2_instance["ProductCodes"]])
+    if instance_type == LICENSE_INCLUDED:
+        ec2_instance["LicenseIncludedType"] = license_included_map[ec2_instance["UsageOperation"]]
     output = {key: ec2_instance.get(key) for key in desired_fields}
     output["AccountId"] = account_id
     output["Region"] = region
@@ -174,6 +181,7 @@ def initialize_error_message():
 
 def categorize_ec2_instances(all_accounts):
     categorized_ec2 = {LICENSE_INCLUDED: [], BYOL: [], MARKETPLACE: []}
+    license_included_map = get_license_included_map()
     all_billing_codes = get_billing_codes()
     all_product_codes, product_codes = get_product_codes()
     for account in all_accounts:
@@ -191,11 +199,11 @@ def categorize_ec2_instances(all_accounts):
             for ec2_instance in ec2_instances:
                 if len(ec2_instance["ProductCodes"]) > 0:
                     categorized_ec2[MARKETPLACE].append(format_data(account, ec2_instance, MARKETPLACE, region,
-                                                                    product_codes))
+                                                                    product_codes=product_codes))
                     summary[account][MARKETPLACE] += 1
                 elif ec2_instance["UsageOperation"] in all_billing_codes[LICENSE_INCLUDED]:
-                    categorized_ec2[LICENSE_INCLUDED].append(format_data(account, ec2_instance, LICENSE_INCLUDED,
-                                                                         region))
+                    categorized_ec2[LICENSE_INCLUDED].append(format_data(account, ec2_instance, LICENSE_INCLUDED, region,
+                                                                         license_included_map=license_included_map))
                     summary[account][LICENSE_INCLUDED] += 1
                 else:
                     byol.append(ec2_instance)
