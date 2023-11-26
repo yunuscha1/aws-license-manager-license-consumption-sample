@@ -40,19 +40,22 @@ deployment of roles and policies into member accounts
 - check_stack_set_status: _boolean_ - Set to true if you would like to check
 if any permissions in member accounts have changed. Setting to false will make the 
 execution of the script faster.
+- custom-product-codes: _dict_ A dictionary used to categorize any custom product codes. The 
+name of the product should be a key and any associated product codes should be placed into a list.
 
 Note: Only one of either "accounts" or "ou_ids" may be used at a time.
 ##### Default inputs
 ```
 {
-  "default_region": "us-east-1",
   "source_regions": [],
   "accounts": [],
   "ou_ids": [],
   "org_wide_role_name": "AdminOrgWideInstancesAggregator",
+  "default_region": "us-east-1",
   "stack_set_name": "OrgWideInstanceAggregatorStackSet",
   "automatic_member_role_creation": true,
-  "check_stack_set_status": true
+  "check_stack_set_status": false,
+  "custom_product_codes": {"example-product-type": ["Associated-product-code-1", "Associated-product-code-2"]}
 }
 ```
 ### Execution

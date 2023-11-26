@@ -6,5 +6,6 @@
   "default_region": "us-east-1",
   "stack_set_name": "OrgWideInstanceAggregatorStackSet",
   "automatic_member_role_creation": true,
-  "check_stack_set_status": false
+  "check_stack_set_status": false,
+  "custom_product_codes": {"example-product-type": ["Associated-product-code-1", "Associated-product-code-2"]}
 }

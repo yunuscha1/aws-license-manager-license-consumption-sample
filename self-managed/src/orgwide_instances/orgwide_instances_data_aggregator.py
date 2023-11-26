@@ -86,6 +86,7 @@ def get_product_codes():
     # Loading in product codes
     with open("product_codes.json") as fp:
         product_codes = json.load(fp)
+        product_codes.update(inputs["custom_product_codes"])
         return [item for sublist in product_codes.values() for item in sublist], product_codes
 
 
